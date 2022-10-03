@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'bloc/events/counter_event.dart';
+import 'bloc/state/counter_state.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -110,68 +114,4 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-@immutable
-abstract class CounterState {
-  final int value;
 
-  const CounterState(this.value);
-}
-
-class CounterStateValid extends CounterState {
-  const CounterStateValid(int value) : super(value);
-}
-
-class CounterStateInvalidNumber extends CounterState {
-  final String invalidValue;
-
-  const CounterStateInvalidNumber({
-    required this.invalidValue,
-    required int previousValue,
-  }) : super(previousValue);
-}
-
-@immutable
-abstract class CounterEvent {
-  final String value;
-
-  const CounterEvent(this.value);
-}
-
-class IncrementEvent extends CounterEvent {
-  const IncrementEvent(String value) : super(value);
-}
-
-class DecrementEvent extends CounterEvent {
-  const DecrementEvent(String value) : super(value);
-}
-
-class CounterBloc extends Bloc<CounterEvent, CounterState> {
-  CounterBloc() : super(const CounterStateValid(0)) {
-    on<IncrementEvent>((event, emit) {
-      final integer = int.tryParse(event.value);
-      if (integer == null) {
-        emit(CounterStateInvalidNumber(
-          invalidValue: event.value,
-          previousValue: state.value,
-        ));
-      } else {
-        emit(
-          CounterStateValid(state.value + integer),
-        );
-      }
-    });
-    on<DecrementEvent>((event, emit) {
-      final integer = int.tryParse(event.value);
-      if (integer == null) {
-        emit(CounterStateInvalidNumber(
-          invalidValue: event.value,
-          previousValue: state.value,
-        ));
-      } else {
-        emit(
-          CounterStateValid(state.value - integer),
-        );
-      }
-    });
-  }
-}
